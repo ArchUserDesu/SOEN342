@@ -5,3 +5,4 @@ A description will come here
 |---|---|---|---|
 | Aymane Ajbar | Leader | 40276382 | ArchUserDesu |
 | Youssef Dammak | Member | 40273615 | 	youssefdammak|
+| Shekinah Nagarasa| Member | 40287073|  shekinah-jn
