@@ -1,0 +1,4 @@
+*.drawio
+/notes/
+/iteration2/poc/build/
+/iteration2/poc/target/
