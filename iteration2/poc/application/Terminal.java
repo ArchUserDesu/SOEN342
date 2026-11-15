@@ -2,7 +2,9 @@ package application;
 
 import domain.model.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,4 +77,44 @@ public final class Terminal {
         return patientAppointments;
     }
 
+    public List<AppointmentSlot> makeAvailability(String professionalId, LocalDate from, LocalDate to,
+                                                  String pattern, LocalTime start, LocalTime end) {
+        InternalHealthcareProfessional professional = findInternalProfessional(professionalId);
+        if (professional == null) {
+            throw new IllegalStateException("Professional not found");
+        }
+        if (professional.schedules().isEmpty()) {
+            professional.addSchedule(new Schedule("SCH-" + professional.professionalId(),
+                    "Availability", professional));
+        }
+        return professional.schedules().get(0).makeAvailability(from, to, pattern, start, end);
+    }
+
+    // professionalId and specialty are optional filters (null or blank to ignore)
+    public List<AppointmentSlot> searchAvailability(String professionalId, String specialty,
+                                                    LocalDate from, LocalDate to) {
+        LocalDateTime rangeStart = from.atStartOfDay();
+        LocalDateTime rangeEnd = to.atTime(LocalTime.MAX);
+        List<AppointmentSlot> found = new ArrayList<>();
+        for (HealthcareProfessional currentProfessional : professionals) {
+            if (!(currentProfessional instanceof InternalHealthcareProfessional)) continue;
+            InternalHealthcareProfessional professional = (InternalHealthcareProfessional) currentProfessional;
+            if (professionalId != null && !professionalId.isBlank()
+                    && !professional.professionalId().equals(professionalId)) continue;
+            if (specialty != null && !specialty.isBlank() && !professional.canProvide(specialty)) continue;
+            found.addAll(professional.findAvailability(rangeStart, rangeEnd));
+        }
+        found.sort((a, b) -> a.startTime().compareTo(b.startTime()));
+        return found;
+    }
+
+    private InternalHealthcareProfessional findInternalProfessional(String professionalId) {
+        for (HealthcareProfessional currentProfessional : professionals) {
+            if (currentProfessional instanceof InternalHealthcareProfessional
+                    && currentProfessional.professionalId().equals(professionalId)) {
+                return (InternalHealthcareProfessional) currentProfessional;
+            }
+        }
+        return null;
+    }
 }
