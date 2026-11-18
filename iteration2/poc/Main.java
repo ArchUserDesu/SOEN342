@@ -22,7 +22,7 @@ public class Main {
 
         Terminal terminal = new Terminal(
                 List.of(patient), List.of(professional), List.of(schedule),
-                List.of(new Resource("RES001", "Examination room", "ROOM", 1)));
+                List.of(new Resource(1)));
 
         Scanner input = new Scanner(System.in);
 

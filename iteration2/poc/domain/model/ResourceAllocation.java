@@ -3,19 +3,12 @@ package domain.model;
 import java.time.LocalDateTime;
 
 public final class ResourceAllocation {
-    private final String allocationId;
-    private final Appointment appointment;
-    private final Resource resource;
     private final LocalDateTime startTime;
     private final LocalDateTime endTime;
     private final int quantity;
     private String status = "ALLOCATED";
 
-    ResourceAllocation(String allocationId, Appointment appointment, Resource resource,
-                       LocalDateTime startTime, LocalDateTime endTime, int quantity) {
-        this.allocationId = allocationId;
-        this.appointment = appointment;
-        this.resource = resource;
+    ResourceAllocation(LocalDateTime startTime, LocalDateTime endTime, int quantity) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.quantity = quantity;

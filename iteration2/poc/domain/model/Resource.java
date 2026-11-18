@@ -6,17 +6,11 @@ import java.util.List;
 import java.util.TreeMap;
 
 public final class Resource {
-    private final String resourceId;
-    private final String name;
-    private final String type;
     private final int capacity;
     private final List<ResourceAllocation> allocations = new ArrayList<>();
 
-    public Resource(String resourceId, String name, String type, int capacity) {
+    public Resource(int capacity) {
         if (capacity < 1) throw new IllegalArgumentException("Capacity must be positive");
-        this.resourceId = resourceId;
-        this.name = name;
-        this.type = type;
         this.capacity = capacity;
     }
 
@@ -45,9 +39,8 @@ public final class Resource {
             throw new IllegalStateException("Resource is unavailable");
         }
         ResourceAllocation allocation = new ResourceAllocation(
-                "ALLOC-" + (allocations.size() + 1), appointment, this, start, end, quantity);
+                start, end, quantity);
         allocations.add(allocation);
         return allocation;
     }
-
 }
