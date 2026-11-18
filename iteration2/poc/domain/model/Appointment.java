@@ -1,6 +1,7 @@
 package domain.model;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public final class Appointment {
     private final String appointmentId;
@@ -25,6 +26,11 @@ public final class Appointment {
     public void reschedule(AppointmentSlot newSlot) { slot.release(); slot = newSlot; dateTime = newSlot.startTime(); newSlot.reserve(this); }
     public void cancel() { status = "CANCELLED"; slot.release(); }
     public void registerArrival(LocalDateTime at) { arrivalTime = at; arrivalStatus = "ARRIVED"; }
+    public boolean isEligibleForCheckIn() {
+        return status.equals("CONFIRMED")
+                && dateTime.toLocalDate().equals(LocalDate.now())
+                && arrivalStatus.equals("NOT_ARRIVED");
+    }
     public boolean isEligibleForConsultation() { return status.equals("CONFIRMED") && arrivalStatus.equals("ARRIVED"); }
     public boolean isBillable() { return !patient.coverageType().equalsIgnoreCase("RAMQ"); }
     public void complete() { status = "COMPLETED"; }

@@ -14,12 +14,14 @@ public final class Terminal {
     private final List<HealthcareProfessional> professionals;
     private final List<Appointment> appointments = new ArrayList<>();
     private final List<Schedule> schedules;
+    private final List<Resource> resources;
 
     public Terminal(List<Patient> patients, List<HealthcareProfessional> professionals,
-                    List<Schedule> schedules) {
+                    List<Schedule> schedules, List<Resource> resources) {
         this.patients = patients;
         this.professionals = professionals;
         this.schedules = schedules;
+        this.resources = resources;
     }
 
     public Appointment requestAppointment(String patientId, String serviceType, LocalDateTime dateTime) {
@@ -55,6 +57,15 @@ public final class Terminal {
             throw new IllegalStateException("No available slot at the requested time");
         }
         AppointmentSlot slot = availableSlots.get(0);
+
+        if (resources.isEmpty()) {
+            throw new IllegalStateException("No resources configured");
+        }
+        for (Resource resource : resources) {
+            if (!resource.isAvailable(slot.startTime(), slot.endTime(), 1)) {
+                throw new IllegalStateException("Resource unavailable");
+            }
+        }
 
         Appointment appointment = new Appointment(
                 "APT-" + (appointments.size() + 1), patient, serviceType, dateTime, slot);
