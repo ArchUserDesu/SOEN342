@@ -3,3 +3,4 @@
 /iteration2/poc/build/
 /iteration2/poc/target/
 .DS_Store
+*.class
