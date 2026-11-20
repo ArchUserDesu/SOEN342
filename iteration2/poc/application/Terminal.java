@@ -2,6 +2,8 @@ package application;
 
 import domain.model.*;
 
+import java.io.IOException;
+import java.nio.file.InvalidPathException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -15,12 +17,13 @@ public final class Terminal {
     private final List<Appointment> appointments = new ArrayList<>();
     private final List<Schedule> schedules;
     private final List<Resource> resources;
+    private List<String> lastImportErrors = new ArrayList<>();
 
     public Terminal(List<Patient> patients, List<HealthcareProfessional> professionals,
                     List<Schedule> schedules, List<Resource> resources) {
         this.patients = patients;
-        this.professionals = professionals;
-        this.schedules = schedules;
+        this.professionals = new ArrayList<>(professionals);
+        this.schedules = new ArrayList<>(schedules);
         this.resources = resources;
     }
 
@@ -118,6 +121,34 @@ public final class Terminal {
         found.sort((a, b) -> a.startTime().compareTo(b.startTime()));
         return found;
     }
+
+    // Import professional availability from a CSV file, return number of slots imported
+    public int importAvailabilityFromCSV(String filePath) {
+        AvailabilityCsvImporter importer = new AvailabilityCsvImporter(professionals, schedules);
+        lastImportErrors = new ArrayList<>();
+        try {
+            int imported = importer.importFrom(filePath);
+            lastImportErrors = new ArrayList<>(importer.errors());
+            return imported;
+        } catch (IOException | InvalidPathException error) {
+            throw new IllegalStateException("Could not read file: " + error.getMessage());
+        }
+    }
+
+    // Rows rejected by most recent import
+    public List<String> lastImportErrors() {
+        return new ArrayList<>(lastImportErrors);
+    }
+
+    // Export all professional availability to CSV file, return number of rows written
+    public int exportAvailabilityToCSV(String filePath) {
+        try {
+            return new AvailabilityCsvExporter(professionals).exportTo(filePath);
+        } catch (IOException | InvalidPathException error) {
+            throw new IllegalStateException("Could not write file: " + error.getMessage());
+        }
+    }
+
 
     private InternalHealthcareProfessional findInternalProfessional(String professionalId) {
         for (HealthcareProfessional currentProfessional : professionals) {
